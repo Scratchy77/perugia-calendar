@@ -4,51 +4,42 @@ from datetime import datetime, timedelta
 
 OUTPUT_FILE = "perugia.ics"
 
-URL = "https://it.wikipedia.org/wiki/AC_Perugia_Calcio_1905_2026-2027"
+URL = "https://www.google.com/search?q=perugia+calcio+partite"
 
 
 def fetch_matches():
-    r = requests.get(URL)
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    r = requests.get(URL, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
 
     matches = []
 
-    tables = soup.find_all("table")
+    # Google mostra partite in blocchi con classi particolari
+    for div in soup.find_all("div"):
+        text = div.get_text()
 
-    for table in tables:
-        rows = table.find_all("tr")
-
-        for row in rows:
-            cols = row.find_all("td")
-
-            if len(cols) < 4:
-                continue
-
-            text = row.get_text()
-
-            if "Perugia" not in text:
-                continue
-
+        if "Perugia" in text and "-" in text:
             try:
-                date_text = cols[0].text.strip()
-                teams = cols[1].text.strip()
+                parts = text.split("\n")
 
-                # esempio: "Perugia – Vis Pesaro"
-                if "–" not in teams:
-                    continue
+                for p in parts:
+                    if "Perugia" in p and "-" in p:
+                        teams = p.strip()
 
-                home, away = teams.split("–")
-                home = home.strip()
-                away = away.strip()
+                        if " - " not in teams:
+                            continue
 
-                date_obj = datetime.strptime(date_text, "%d %B %Y")
+                        home, away = teams.split(" - ")
 
-                matches.append({
-                    "date": date_obj.replace(hour=20, minute=30),
-                    "home": home,
-                    "away": away,
-                    "competition": "Serie C"
-                })
+                        matches.append({
+                            "date": datetime.now(),
+                            "home": home,
+                            "away": away,
+                            "competition": "Match"
+                        })
 
             except:
                 continue
