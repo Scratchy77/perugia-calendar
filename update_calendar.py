@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 import os
+from zoneinfo import ZoneInfo
 
 OUTPUT_FILE = "perugia.ics"
 
@@ -29,10 +30,13 @@ def fetch_matches():
             away = m["awayTeam"]["name"]
 
             timestamp = m["startTimestamp"]
-            date = datetime.fromtimestamp(timestamp)
+
+            # ✅ UTC → Europe/Rome (automatico con ora legale)
+            date_utc = datetime.fromtimestamp(timestamp, tz=ZoneInfo("UTC"))
+            date_local = date_utc.astimezone(ZoneInfo("Europe/Rome"))
 
             matches.append({
-                "date": date,
+                "date": date_local,
                 "home": home,
                 "away": away,
                 "competition": m["tournament"]["name"]
@@ -51,7 +55,7 @@ def create_ics(matches):
     if not matches:
         matches = [
             {
-                "date": datetime(2026, 8, 25, 20, 30),
+                "date": datetime(2026, 8, 25, 20, 30, tzinfo=ZoneInfo("Europe/Rome")),
                 "home": "Perugia",
                 "away": "Vis Pesaro",
                 "competition": "Serie C"
