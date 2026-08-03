@@ -1,24 +1,23 @@
 import requests
 from datetime import datetime, timedelta
+import os
 
 OUTPUT_FILE = "perugia.ics"
 
+API_KEY = os.getenv("SCRAPINGBEE_API_KEY")
+
+URL = "https://api.sofascore.com/api/v1/team/2690/events/next/0"
+
 
 def fetch_matches():
-    url = "https://api.sofascore.com/api/v1/team/2690/events/next/0"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept": "application/json",
-        "Referer": "https://www.sofascore.com/",
-        "Origin": "https://www.sofascore.com"
-    }
+    scrape_url = f"https://app.scrapingbee.com/api/v1/?api_key={API_KEY}&url={URL}"
 
     try:
-        r = requests.get(url, headers=headers)
+        r = requests.get(scrape_url)
         print("STATUS:", r.status_code)
 
         if r.status_code != 200:
+            print(r.text[:200])
             return []
 
         data = r.json()
@@ -41,24 +40,24 @@ def fetch_matches():
 
         print("MATCHES:", len(matches))
 
-        if matches:
-            return matches
+        return matches
 
     except Exception as e:
         print("ERRORE:", e)
-
-    # fallback
-    return [
-        {
-            "date": datetime(2026, 8, 25, 20, 30),
-            "home": "Perugia",
-            "away": "Vis Pesaro",
-            "competition": "Serie C"
-        }
-    ]
+        return []
 
 
 def create_ics(matches):
+    if not matches:
+        matches = [
+            {
+                "date": datetime(2026, 8, 25, 20, 30),
+                "home": "Perugia",
+                "away": "Vis Pesaro",
+                "competition": "Serie C"
+            }
+        ]
+
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
