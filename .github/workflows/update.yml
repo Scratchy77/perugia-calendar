@@ -1,5 +1,4 @@
 name: Update Perugia Calendar
-
 permissions:
   contents: write
 
@@ -9,6 +8,9 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+
+    env:
+      API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
