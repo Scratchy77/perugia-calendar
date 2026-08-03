@@ -7,10 +7,19 @@ OUTPUT_FILE = "perugia.ics"
 def fetch_matches():
     url = "https://api.sofascore.com/api/v1/team/2690/events/next/0"
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept": "application/json",
+        "Referer": "https://www.sofascore.com/",
+        "Origin": "https://www.sofascore.com"
+    }
+
     try:
-        r = requests.get(url)
+        r = requests.get(url, headers=headers)
         print("STATUS:", r.status_code)
-        print("TEXT:", r.text[:500])  # primi 500 caratteri
+
+        if r.status_code != 200:
+            return []
 
         data = r.json()
 
@@ -30,7 +39,7 @@ def fetch_matches():
                 "competition": m["tournament"]["name"]
             })
 
-        print("MATCHES TROVATI:", len(matches))
+        print("MATCHES:", len(matches))
 
         if matches:
             return matches
@@ -38,6 +47,7 @@ def fetch_matches():
     except Exception as e:
         print("ERRORE:", e)
 
+    # fallback
     return [
         {
             "date": datetime(2026, 8, 25, 20, 30),
