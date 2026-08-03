@@ -19,8 +19,8 @@ jobs:
 
       - name: Commit file
         run: |
-          git config --global user.name "bot"
-          git config --global user.email "bot@example.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add perugia.ics
           git commit -m "create calendar" || echo "no changes"
           git push
