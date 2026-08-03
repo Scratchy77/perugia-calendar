@@ -1,0 +1,26 @@
+name: Update Perugia Calendar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Run script
+        run: python update_calendar.py
+
+      - name: Commit file
+        run: |
+          git config --global user.name "bot"
+          git config --global user.email "bot@example.com"
+          git add perugia.ics
+          git commit -m "create calendar" || echo "no changes"
+          git push
