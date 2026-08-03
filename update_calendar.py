@@ -218,6 +218,5 @@ def main():
     matches = fetch_matches()
     create_ics(matches)
 
-
 if __name__ == "__main__":
     main()
