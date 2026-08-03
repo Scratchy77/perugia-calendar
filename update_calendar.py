@@ -1,23 +1,57 @@
+import requests
+from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 OUTPUT_FILE = "perugia.ics"
 
+URL = "https://www.calcio.com/tutte_le_partite/ac-perugia-calcio-1905/"
+
 
 def fetch_matches():
-    return [
-        {
-            "date": datetime(2026, 8, 25, 20, 30),
-            "home": "Perugia",
-            "away": "Vis Pesaro",
-            "competition": "Serie C"
-        },
-        {
-            "date": datetime(2026, 9, 1, 20, 30),
-            "home": "Arezzo",
-            "away": "Perugia",
-            "competition": "Serie C"
-        }
-    ]
+    headers = {"User-Agent": "Mozilla/5.0"}
+    r = requests.get(URL, headers=headers)
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    matches = []
+
+    rows = soup.select("table.standard_tabelle tr")
+
+    for row in rows:
+        cols = row.find_all("td")
+
+        if len(cols) < 5:
+            continue
+
+        try:
+            date_text = cols[0].text.strip()
+            home = cols[2].text.strip()
+            away = cols[4].text.strip()
+
+            # esempio formato: "25.08.2026"
+            date_obj = datetime.strptime(date_text, "%d.%m.%Y")
+
+            matches.append({
+                "date": date_obj.replace(hour=20, minute=30),
+                "home": home,
+                "away": away,
+                "competition": "Partita"
+            })
+
+        except:
+            continue
+
+    # fallback se vuoto
+    if not matches:
+        return [
+            {
+                "date": datetime(2026, 8, 25, 20, 30),
+                "home": "Perugia",
+                "away": "Vis Pesaro",
+                "competition": "Serie C"
+            }
+        ]
+
+    return matches
 
 
 def create_ics(matches):
