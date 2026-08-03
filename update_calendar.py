@@ -9,6 +9,9 @@ def fetch_matches():
 
     try:
         r = requests.get(url)
+        print("STATUS:", r.status_code)
+        print("TEXT:", r.text[:500])  # primi 500 caratteri
+
         data = r.json()
 
         matches = []
@@ -27,13 +30,14 @@ def fetch_matches():
                 "competition": m["tournament"]["name"]
             })
 
+        print("MATCHES TROVATI:", len(matches))
+
         if matches:
             return matches
 
     except Exception as e:
-        print("Errore API:", e)
+        print("ERRORE:", e)
 
-    # fallback
     return [
         {
             "date": datetime(2026, 8, 25, 20, 30),
