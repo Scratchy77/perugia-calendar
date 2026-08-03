@@ -6,7 +6,7 @@ OUTPUT_FILE = "perugia.ics"
 
 API_KEY = os.getenv("SCRAPINGBEE_API_KEY")
 
-URL = "https://api.sofascore.com/api/v1/team/2690/events/next/0"
+URL = "https://api.sofascore.com/api/v1/team/2698/events/next/0"
 
 
 def fetch_matches():
