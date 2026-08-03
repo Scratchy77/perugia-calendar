@@ -79,6 +79,7 @@ def create_ics(matches):
 
 def main():
     matches = fetch_matches()
+    print("MATCHES:", matches)
     create_ics(matches)
 
 
