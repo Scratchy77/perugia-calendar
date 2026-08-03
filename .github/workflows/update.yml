@@ -1,16 +1,19 @@
 name: Update Perugia Calendar
+
 permissions:
   contents: write
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     env:
-      API_TOKEN: ${{ secrets.API_TOKEN }}
+      SCRAPINGBEE_API_KEY: ${{ secrets.SCRAPINGBEE_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,5 +33,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add perugia.ics
-          git commit -m "create calendar" || echo "no changes"
+          git commit -m "update calendar" || echo "no changes"
           git push
