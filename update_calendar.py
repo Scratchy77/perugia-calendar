@@ -1,61 +1,47 @@
 import requests
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 OUTPUT_FILE = "perugia.ics"
 
-URL = "https://www.google.com/search?q=perugia+calcio+partite"
-
 
 def fetch_matches():
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    url = "https://api.sofascore.com/api/v1/team/2690/events/next/0"
 
-    r = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        r = requests.get(url)
+        data = r.json()
 
-    matches = []
+        matches = []
 
-    # Google mostra partite in blocchi con classi particolari
-    for div in soup.find_all("div"):
-        text = div.get_text()
+        for m in data.get("events", []):
+            home = m["homeTeam"]["name"]
+            away = m["awayTeam"]["name"]
 
-        if "Perugia" in text and "-" in text:
-            try:
-                parts = text.split("\n")
+            timestamp = m["startTimestamp"]
+            date = datetime.fromtimestamp(timestamp)
 
-                for p in parts:
-                    if "Perugia" in p and "-" in p:
-                        teams = p.strip()
+            matches.append({
+                "date": date,
+                "home": home,
+                "away": away,
+                "competition": m["tournament"]["name"]
+            })
 
-                        if " - " not in teams:
-                            continue
+        if matches:
+            return matches
 
-                        home, away = teams.split(" - ")
-
-                        matches.append({
-                            "date": datetime.now(),
-                            "home": home,
-                            "away": away,
-                            "competition": "Match"
-                        })
-
-            except:
-                continue
+    except Exception as e:
+        print("Errore API:", e)
 
     # fallback
-    if not matches:
-        return [
-            {
-                "date": datetime(2026, 8, 25, 20, 30),
-                "home": "Perugia",
-                "away": "Vis Pesaro",
-                "competition": "Serie C"
-            }
-        ]
-
-    return matches
+    return [
+        {
+            "date": datetime(2026, 8, 25, 20, 30),
+            "home": "Perugia",
+            "away": "Vis Pesaro",
+            "competition": "Serie C"
+        }
+    ]
 
 
 def create_ics(matches):
