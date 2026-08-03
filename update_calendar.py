@@ -1,48 +1,23 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 
-URL = "https://www.transfermarkt.com/ac-perugia-calcio-1905/spielplan/verein/1381"
 OUTPUT_FILE = "perugia.ics"
 
 
 def fetch_matches():
-    headers = {"User-Agent": "Mozilla/5.0"}
-    r = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(r.text, "html.parser")
-
-    matches = []
-
-    rows = soup.select("table.items tbody tr")
-
-    for row in rows:
-        try:
-            date_cell = row.select_one("td.zentriert")
-            if not date_cell:
-                continue
-
-            date_text = date_cell.text.strip()
-
-            try:
-                date_obj = datetime.strptime(date_text, "%b %d, %Y")
-            except:
-                continue
-
-            home = row.select_one("td:nth-of-type(5)").text.strip()
-            away = row.select_one("td:nth-of-type(7)").text.strip()
-            competition = row.select_one("td:nth-of-type(2)").text.strip()
-
-            matches.append({
-                "date": date_obj,
-                "home": home,
-                "away": away,
-                "competition": competition
-            })
-
-        except:
-            continue
-
-    return matches
+    return [
+        {
+            "date": datetime(2026, 8, 25, 20, 30),
+            "home": "Perugia",
+            "away": "Vis Pesaro",
+            "competition": "Serie C"
+        },
+        {
+            "date": datetime(2026, 9, 1, 20, 30),
+            "home": "Arezzo",
+            "away": "Perugia",
+            "competition": "Serie C"
+        }
+    ]
 
 
 def create_ics(matches):
@@ -55,8 +30,8 @@ def create_ics(matches):
     ]
 
     for m in matches:
-        start = m["date"].strftime("%Y%m%dT203000")
-        end = m["date"].strftime("%Y%m%dT223000")
+        start = m["date"].strftime("%Y%m%dT%H%M%S")
+        end = (m["date"] + timedelta(hours=2)).strftime("%Y%m%dT%H%M%S")
 
         uid = f"{m['home']}-{m['away']}-{m['date'].strftime('%Y%m%d')}"
 
@@ -79,7 +54,6 @@ def create_ics(matches):
 
 def main():
     matches = fetch_matches()
-    print("MATCHES:", matches)
     create_ics(matches)
 
 
