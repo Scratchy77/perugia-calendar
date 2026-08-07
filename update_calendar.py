@@ -1,3 +1,4 @@
+```python
 import requests
 from datetime import datetime, timedelta
 import os
@@ -34,14 +35,20 @@ def fetch_matches():
                 timestamp = m["startTimestamp"]
 
                 # UTC → Europe/Rome
-                date_utc = datetime.fromtimestamp(timestamp, tz=ZoneInfo("UTC"))
-                date_local = date_utc.astimezone(ZoneInfo("Europe/Rome"))
+                date_utc = datetime.fromtimestamp(
+                    timestamp,
+                    tz=ZoneInfo("UTC")
+                )
 
-                # solo future
+                date_local = date_utc.astimezone(
+                    ZoneInfo("Europe/Rome")
+                )
+
+                # Solo partite future
                 if date_local < now:
                     continue
 
-                # casa / trasferta
+                # Casa / trasferta
                 is_home = "perugia" in home.lower()
                 icon = "🏠" if is_home else "✈️"
 
@@ -49,7 +56,9 @@ def fetch_matches():
                     "date": date_local,
                     "home": home,
                     "away": away,
-                    "competition": m.get("tournament", {}).get("name", "Partita"),
+                    "competition": m.get(
+                        "tournament", {}
+                    ).get("name", "Partita"),
                     "icon": icon
                 })
 
@@ -66,10 +75,14 @@ def fetch_matches():
 
 
 def create_ics(matches):
+
     if not matches:
         matches = [
             {
-                "date": datetime(2026, 8, 25, 20, 30, tzinfo=ZoneInfo("Europe/Rome")),
+                "date": datetime(
+                    2026, 8, 25, 20, 30,
+                    tzinfo=ZoneInfo("Europe/Rome")
+                ),
                 "home": "Perugia",
                 "away": "Vis Pesaro",
                 "competition": "Serie C",
@@ -86,10 +99,25 @@ def create_ics(matches):
     ]
 
     for m in matches:
-        start = m["date"].strftime("%Y%m%dT%H%M%S")
-        end = (m["date"] + timedelta(hours=2)).strftime("%Y%m%dT%H%M%S")
 
-        uid = f"{m['home']}-{m['away']}-{m['date'].strftime('%Y%m%d')}"
+        start = m["date"].strftime("%Y%m%dT%H%M%S")
+        end = (
+            m["date"] + timedelta(hours=2)
+        ).strftime("%Y%m%dT%H%M%S")
+
+        uid = (
+            f"{m['home']}-{m['away']}-"
+            f"{m['date'].strftime('%Y%m%d')}"
+        )
+
+        description = (
+            f"{m['competition']}\\n"
+            f"Forza Grifo! 🤍❤️\\n"
+            f"Se sei soddisfatto del servizio, "
+            f"offrimi un caffè ☕\\n"
+            f"👉 Offrimi un caffè – 1 €\\n"
+            f"https://paypal.me/Scratchy77/1"
+        )
 
         lines.extend([
             "BEGIN:VEVENT",
@@ -98,7 +126,7 @@ def create_ics(matches):
             f"DTSTART:{start}",
             f"DTEND:{end}",
             f"SUMMARY:{m['icon']} {m['home']} vs {m['away']} ({m['competition']})",
-            f"DESCRIPTION:{m['competition']}",
+            f"DESCRIPTION:{description}",
 
             "BEGIN:VALARM",
             "TRIGGER:-PT1H",
@@ -111,8 +139,13 @@ def create_ics(matches):
 
     lines.append("END:VCALENDAR")
 
-    with open(OUTPUT_FILE, "w") as f:
-        f.write("\n".join(lines))
+    with open(
+        OUTPUT_FILE,
+        "w",
+        encoding="utf-8",
+        newline=""
+    ) as f:
+        f.write("\r\n".join(lines))
 
 
 def main():
@@ -122,3 +155,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
