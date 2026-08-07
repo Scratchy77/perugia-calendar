@@ -30,10 +30,8 @@ try:
         try:
             home = m["homeTeam"]["name"]
             away = m["awayTeam"]["name"]
-
             timestamp = m["startTimestamp"]
 
-            # UTC -> Europe/Rome
             date_utc = datetime.fromtimestamp(
                 timestamp,
                 tz=ZoneInfo("UTC")
@@ -43,11 +41,9 @@ try:
                 ZoneInfo("Europe/Rome")
             )
 
-            # Solo partite future
             if date_local < now:
                 continue
 
-            # Casa / trasferta
             is_home = "perugia" in home.lower()
             icon = "🏠" if is_home else "✈️"
 
@@ -116,7 +112,7 @@ for m in matches:
         f"Forza Grifo! 🤍❤️\\n"
         f"Se sei soddisfatto del servizio, "
         f"offrimi un caffè ☕\\n"
-        f"👉 Offrimi un caffè – 1 €\\n"
+        f"Offrimi un caffè - 1 EUR\\n"
         f"https://paypal.me/Scratchy77/1"
     )
 
