@@ -4,25 +4,18 @@ import os
 from zoneinfo import ZoneInfo
 
 OUTPUT_FILE = "perugia.ics"
-
 API_KEY = os.getenv("SCRAPINGBEE_API_KEY")
-
 URL = "https://api.sofascore.com/api/v1/team/2698/events/next/0"
-
 
 def fetch_matches():
     scrape_url = f"https://app.scrapingbee.com/api/v1/?api_key={API_KEY}&url={URL}"
-
     try:
         r = requests.get(scrape_url)
         print("STATUS:", r.status_code)
-
         if r.status_code != 200:
             print(r.text[:200])
             return []
-
         data = r.json()
-
         matches = []
         now = datetime.now(ZoneInfo("Europe/Rome"))
 
@@ -102,12 +95,16 @@ def create_ics(matches):
             f"{m['date'].strftime('%Y%m%d')}"
         )
 
+        # versione "premium" della competizione
+        competition = m['competition'].replace(
+            'Knockout stage',
+            '– Knockout stage'
+        )
+
         description = (
-            f"{m['competition']}\\n"
-            f"Forza Grifo! 🤍❤️\\n"
-            f"Se sei soddisfatto del servizio, "
-            f"offrimi un caffè ☕\\n"
-            f"Offrimi un caffè - 1 EUR\\n"
+            f"{competition}\\n\\n"
+            f"Forza Grifo 🤍❤️\\n\\n"
+            f"Se sei soddisfatto del calendario, offrimi un caffè ☕\\n"
             f"https://paypal.me/Scratchy77/1"
         )
 
@@ -117,7 +114,7 @@ def create_ics(matches):
             f"DTSTAMP:{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}",
             f"DTSTART:{start}",
             f"DTEND:{end}",
-            f"SUMMARY:{m['icon']} {m['home']} vs {m['away']} ({m['competition']})",
+            f"SUMMARY:{m['icon']} {m['home']} vs {m['away']} ({competition})",
             f"DESCRIPTION:{description}",
             "BEGIN:VALARM",
             "TRIGGER:-PT1H",
